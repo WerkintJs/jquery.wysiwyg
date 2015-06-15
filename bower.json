@@ -7,6 +7,9 @@
         "jquery":         "*"
     },
     "main":         [
-        "wysiwyg.js"
+        "wysiwyg.js",
+        "wysiwyg/wys.js",
+        "wysiwyg/wysiwyg.js",
+        "wysiwyg/wysiwyg.css"
     ]
 }
