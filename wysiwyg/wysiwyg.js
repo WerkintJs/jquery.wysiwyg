@@ -138,6 +138,7 @@ define(['jquery', 'dropzone', './wys'], function ($, Dropzone) {
 
 
                 $image.attr('src', url);
+                $image.attr('align', "middle")
             };
 
 
