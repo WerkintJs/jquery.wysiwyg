@@ -1,4 +1,4 @@
-define(['jquery', 'dropzone', './wys'], function ($, Dropzone) {
+define(['jquery', 'dropzone', 'lodash', './wys'], function ($,_, Dropzone) {
     'use strict';
 
     (function (window, document, $, undefined) {
@@ -105,42 +105,40 @@ define(['jquery', 'dropzone', './wys'], function ($, Dropzone) {
             };
 
 
-            var insert_image_wysiwyg = function (url, filename,wysiwygeditor) {
+            var insert_image_wysiwyg = function (url, filename, wysiwygeditor) {
                 var html = '<img id="wysiwyg-insert-image" src="" alt=""' + (filename ? ' title="' + html_encode(filename) + '"' : '') + ' />';
                 wysiwygeditor.insertHTML(html).closePopup().collapseSelection();
                 var $image = $('#wysiwyg-insert-image').removeAttr('id');
                 if (max_imagesize) {
                     $image.css({
-                        maxWidth:  max_imagesize[0] + 'px',
-                        maxHeight: max_imagesize[1] + 'px'
-                    })
-                        .load(function () {
-                            $image.css({
-                                float: 'left',
-                            });
-                            // Resize $image to fit "clip-image"
-                            var image_width = $image.width(),
-                                image_height = $image.height();
-                            if (image_width > max_imagesize[0] || image_height > max_imagesize[1]) {
-                                if ((image_width / image_height) > (max_imagesize[0] / max_imagesize[1])) {
-                                    image_height = parseInt(image_height / image_width * max_imagesize[0]);
-                                    image_width = max_imagesize[0];
-                                }
-                                else {
-                                    image_width = parseInt(image_width / image_height * max_imagesize[1]);
-                                    image_height = max_imagesize[1];
-                                }
-                                $image.attr('width', image_width)
-                                    .attr('height', image_height);
-                            }
-                        });
+                          maxWidth: max_imagesize[0] + 'px',
+                          maxHeight: max_imagesize[1] + 'px',
+                          'display': 'block',
+                          'margin-left': 'auto',
+                          'margin-right': 'auto'
+                      })
+                      .load(function () {
+                          // Resize $image to fit "clip-image"
+                          var image_width = $image.width(),
+                            image_height = $image.height();
+                          if (image_width > max_imagesize[0] || image_height > max_imagesize[1]) {
+                              if ((image_width / image_height) > (max_imagesize[0] / max_imagesize[1])) {
+                                  image_height = parseInt(image_height / image_width * max_imagesize[0]);
+                                  image_width = max_imagesize[0];
+                              }
+                              else {
+                                  image_width = parseInt(image_width / image_height * max_imagesize[1]);
+                                  image_height = max_imagesize[1];
+                              }
+                              $image.attr('width', image_width)
+                                .attr('height', image_height);
+                          }
+                      });
                 }
 
 
                 $image.attr('src', url);
-                $image.attr('align', "middle")
             };
-
 
             // Content: Insert image
             var content_insertimage = function (wysiwygeditor) {
@@ -160,57 +158,55 @@ define(['jquery', 'dropzone', './wys'], function ($, Dropzone) {
             };
 
             // Content: Insert video
-            var content_insertvideo = function (wysiwygeditor) {
+            var content_insertvideo = function(wysiwygeditor)
+            {
                 // Add video to editor
-                var insert_video_wysiwyg = function (url, html) {
-                    url = $.trim(url || '');
-                    html = $.trim(html || '');
+                var insert_video_wysiwyg = function( url, html )
+                {
+                    url = $.trim(url||'');
+                    html = $.trim(html||'');
                     var website_url = false;
-                    if (url.length && !html.length) {
+                    if( url.length && ! html.length )
                         website_url = url;
-                    } else if (html.indexOf('<') == -1 && html.indexOf('>') == -1 &&
-                        html.match(/^(?:https?:\/)?\/?(?:[^:\/\s]+)(?:(?:\/\w+)*\/)(?:[\w\-\.]+[^#?\s]+)(?:.*)?(?:#[\w\-]+)?$/)) {
+                    else if( html.indexOf('<') == -1 && html.indexOf('>') == -1 &&
+                      html.match(/^(?:https?:\/)?\/?(?:[^:\/\s]+)(?:(?:\/\w+)*\/)(?:[\w\-\.]+[^#?\s]+)(?:.*)?(?:#[\w\-]+)?$/) )
                         website_url = html;
-                    }
-                    if (website_url && video_from_url) {
-                        html = video_from_url(website_url) || '';
-                    }
-                    if (!html.length && website_url) {
-                        html = '<video src="' + html_encode(website_url) + '" />';
-                    }
-                    wysiwygeditor.insertHTML(html).closePopup().collapseSelection();
+                    if( website_url && video_from_url )
+                        html = video_from_url( website_url ) || '';
+                    if( ! html.length && website_url )
+                        html = '<video src="' + html_encode(website_url) + '">';
+                    wysiwygeditor.insertHTML( html ).closePopup().collapseSelection();
                 };
                 // Create popup
                 var $content = $('<div/>').addClass('wysiwyg-toolbar-form')
-                    .attr('unselectable', 'on');
+                  .prop('unselectable','on');
                 // Add video via '<embed/>'
                 var $textareaembed = $('<textarea>').addClass('wysiwyg-input wysiwyg-inputtextarea');
-                if (placeholder_embed) {
-                    $textareaembed.attr('placeholder', placeholder_embed);
-                }
-                $('<div/>').addClass('wysiwyg-embedcode')
-                    .append($textareaembed)
-                    .appendTo($content);
+                if( placeholder_embed )
+                    $textareaembed.prop( 'placeholder', placeholder_embed );
+                $('<div/>').addClass( 'wysiwyg-embedcode' )
+                  .append( $textareaembed )
+                  .appendTo( $content );
                 // Add video via 'URL'
-                var $button = toolbar_button(toolbar_submit);
-                var $inputurl = $('<input type="text" value="" />').addClass('wysiwyg-input')
-                    .keypress(function (event) {
-                        if (event.which == 10 || event.which == 13) {
-                            insert_video_wysiwyg($inputurl.val());
-                        }
+                var $inputurl = $('<input type="text" value="">').addClass('wysiwyg-input')
+                  .keypress(function(event){
+                      if( event.which == 10 || event.which == 13 )
+                          insert_video_wysiwyg( $inputurl.val() );
+                  });
+                if( placeholder_url )
+                    $inputurl.prop( 'placeholder', placeholder_url );
+                var $okaybutton = $();
+                if( toolbar_submit )
+                    $okaybutton = toolbar_button(toolbar_submit).click(function(event){
+                        insert_video_wysiwyg( $inputurl.val(), $textareaembed.val() );
+                        event.stopPropagation();
+                        event.preventDefault();
+                        return false;
                     });
-                if (placeholder_url) {
-                    $inputurl.attr('placeholder', placeholder_url);
-                }
-                var $okaybutton = $button.click(function (event) {
-                    insert_video_wysiwyg($inputurl.val(), $textareaembed.val());
-                    event.stopPropagation();
-                    event.preventDefault();
-                    return false;
-                });
-                $content.append($('<div/>').append($inputurl).append($okaybutton));
+                $content.append( $('<div/>').append($inputurl).append($okaybutton) );
                 return $content;
             };
+
 
             // Content: Color palette
             var content_colorpalette = function (wysiwygeditor, forecolor) {
