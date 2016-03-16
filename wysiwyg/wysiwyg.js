@@ -1,4 +1,4 @@
-define(['jquery', 'dropzone', 'lodash', './wys'], function ($,_, Dropzone) {
+define(['jquery','lodash', 'dropzone',  './wys'], function ($,_, Dropzone) {
     'use strict';
 
     (function (window, document, $, undefined) {
