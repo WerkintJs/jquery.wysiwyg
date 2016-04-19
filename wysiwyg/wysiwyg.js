@@ -249,6 +249,42 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
         return $content;
       };
 
+      var content_insertHtml = function (wysiwygeditor) {
+        // Add video to editor
+        var insert_html_wysiwyg = function (url, html) {
+          html = $.trim(html || '');
+          wysiwygeditor.insertHTML(html).closePopup().collapseSelection();
+        };
+        // Create popup
+        var $content = $('<div/>').addClass('wysiwyg-toolbar-form')
+          .prop('unselectable', 'on');
+        // Add video via '<embed/>'
+        var $textareaembed = $('<textarea>').addClass('wysiwyg-input wysiwyg-inputtextarea');
+        if (placeholder_embed)
+          $textareaembed.prop('placeholder', placeholder_embed);
+        $('<div/>').addClass('wysiwyg-embedcode')
+          .append($textareaembed)
+          .appendTo($content);
+        // Add video via 'URL'
+        var $inputurl = $('<input type="text" value="">').addClass('wysiwyg-input')
+          .keypress(function (event) {
+            if (event.which == 10 || event.which == 13)
+              insert_html_wysiwyg($inputurl.val());
+          });
+        if (placeholder_url)
+          $inputurl.prop('placeholder', placeholder_url);
+        var $okaybutton = $();
+        if (toolbar_submit)
+          $okaybutton = toolbar_button(toolbar_submit).click(function (event) {
+            insert_html_wysiwyg($inputurl.val(), $textareaembed.val());
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+          });
+        $content.append($('<div/>').append($inputurl).append($okaybutton));
+        return $content;
+      };
+
       // Content: Color palette
       var content_colorpalette = function (wysiwygeditor, forecolor) {
         var $content = $('<table/>')
@@ -323,6 +359,13 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
             }
             return function (target) {
               popup_callback(content_insertiframe(wysiwygeditor), target);
+            };
+          case 'insertHtml':
+            if (!popup_callback) {
+              return null;
+            }
+            return function (target) {
+              popup_callback(content_insertHtml(wysiwygeditor), target);
             };
           case 'insertlink':
             if (!popup_callback) {
