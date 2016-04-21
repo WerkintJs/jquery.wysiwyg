@@ -58,19 +58,33 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
                                   placeholder_url, placeholder_embed, max_imagesize, on_imageupload, force_imageupload, video_from_url, iframe_from_url,
                                   on_keydown, on_keypress, on_keyup, on_autocomplete, img_url) {
       // Content: Insert link
-      var wysiwygeditor_insertLink = function (wysiwygeditor, url) {
+      var wysiwygeditor_insertLink = function (wysiwygeditor, url,title, blankTarget) {
         if (!url) {
           ;
         } else if (wysiwygeditor.getSelectedHTML()) {
           wysiwygeditor.insertLink(url);
         } else {
-          wysiwygeditor.insertHTML('<a href="' + html_encode(url) + '">' + html_encode(url) + '</a>');
+          if(blankTarget){
+
+            debugger;
+            var html = '<a href="' + url + '" target="_blank">' + title + '</a>';
+          }
+          else{
+            html = '<a href="' + html_encode(url) + '">' + title + '</a>';
+
+          }
+          wysiwygeditor.insertHTML(html);
+
         }
         wysiwygeditor.closePopup().collapseSelection();
       };
       var content_insertlink = function (wysiwygeditor, $modify_link) {
+        var $content = $('<div/>').addClass('wysiwyg-toolbar-form')
+          .prop('unselectable', 'on');
         var $button = toolbar_button(toolbar_submit);
-        var $inputurl = $('<input type="text" value="' + ($modify_link ? $modify_link.attr('href') : '') + '" />').addClass('wysiwyg-input')
+        var $blankTarget = $('<input type="checkbox"/>В новом окне<br>');
+        var $inputTitle = $('<input type="text"/>Title url<br>').addClass('wysiwyg-input');
+        var $inputurl = $('<input type="text" value="' + ($modify_link ? $modify_link.attr('href') : '') + '" />Url<br>').addClass('wysiwyg-input')
           .keypress(function (event) {
             if (event.which != 10 && event.which != 13) {
               return;
@@ -92,15 +106,13 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
             wysiwygeditor.closePopup().collapseSelection();
           }
           else {
-            wysiwygeditor_insertLink(wysiwygeditor, $inputurl.val());
+            wysiwygeditor_insertLink(wysiwygeditor, $inputurl.val(),$inputTitle.val(),$blankTarget.prop("checked"));
           }
           event.stopPropagation();
           event.preventDefault();
           return false;
         });
-        var $content = $('<div/>').addClass('wysiwyg-toolbar-form')
-          .attr('unselectable', 'on');
-        $content.append($inputurl).append($okaybutton);
+        $content.append($inputTitle).append($inputurl).append($blankTarget).append($okaybutton);
         return $content;
       };
 
