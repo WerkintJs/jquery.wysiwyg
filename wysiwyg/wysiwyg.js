@@ -66,7 +66,6 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
         } else {
           if(blankTarget){
 
-            debugger;
             var html = '<a href="' + url + '" target="_blank">' + title + '</a>';
           }
           else{
