@@ -1,11 +1,6 @@
 {
     "name":         "wysiwyg",
     "version":      "0.0.1",
-    "dependencies": {
-        "requirejs.css":  "*",
-        "dropzone":       "*",
-        "jquery":         "*"
-    },
     "main":         [
         "wysiwyg.js",
         "wysiwyg/wys.js",
