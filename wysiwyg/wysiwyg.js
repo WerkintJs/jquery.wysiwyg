@@ -128,7 +128,7 @@ define(['jquery', 'lodash', 'dropzone', './wys'], function ($, _, Dropzone) {
               'margin-left': 'auto',
               'margin-right': 'auto'
             })
-            .load(function () {
+            .load(url, function () {
               // Resize $image to fit "clip-image"
               var image_width = $image.width(),
                 image_height = $image.height();
